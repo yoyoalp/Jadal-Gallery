@@ -70,7 +70,7 @@
       <button class="flt" data-cat="print"><span class="ar">طباعة يدوية</span><span class="en">Print</span></button>
       <button class="flt" data-cat="installation"><span class="ar">تجهيز فني</span><span class="en">Installation</span></button>
     </div>
-    <button class="btn btn-blue" id="openModal">
+    <button class="btn btn-blue" id="openModal" style="display:none">
       <span class="ar">+ إضافة عمل فني</span>
       <span class="en">+ Add Artwork</span>
     </button>
@@ -231,9 +231,9 @@
         <h4 class="ar">تابعنا</h4>
         <h4 class="en">Follow Us</h4>
         <ul>
-          <li><a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank">Instagram</a></li>
-          <li><a href="https://wa.me/962793310203" target="_blank">WhatsApp</a></li>
-          <li><a href="mailto:jadalgallery@gmail.com">Email</a></li>
+          <li><a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank"><img src="instagram.svg" alt="" class="ig-icon"> Instagram</a></li>
+          <li><a href="https://wa.me/962793310203" target="_blank"><img src="whatsapp.svg" alt="" class="wa-icon"> WhatsApp</a></li>
+          <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener"><img src="gmail.svg" alt="" class="gmail-icon"> Email</a></li>
         </ul>
       </div>
     </div>
@@ -242,14 +242,19 @@
       <span class="ar">© ٢٠٢٤ معرض جدل.</span>
       <span class="en">© 2024 Jadal Gallery.</span>
       <div class="foot-soc">
-        <a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank">📸</a>
-        <a href="https://wa.me/962793310203" target="_blank">💬</a>
-        <a href="mailto:jadalgallery@gmail.com">✉</a>
+        <a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank"><img src="instagram.svg" alt="Instagram" class="ig-icon"></a>
+        <a href="https://wa.me/962793310203" target="_blank"><img src="whatsapp.svg" alt="WhatsApp" class="wa-icon"></a>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener"><img src="gmail.svg" alt="Email" class="gmail-icon"></a>
       </div>
     </div>
   </div>
 </footer>
 
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

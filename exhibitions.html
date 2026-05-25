@@ -257,33 +257,36 @@
         </div>
 
         <div class="info-block">
-          <div class="info-ico"><span>✉</span></div>
+          <div class="info-ico"><img src="gmail.svg" alt="Email" class="gmail-icon"></div>
           <div class="info-text">
             <h4 class="ar">البريد الإلكتروني</h4>
             <h4 class="en">Email</h4>
-            <a href="mailto:jadalgallery@gmail.com">jadalgallery@gmail.com</a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener">jadalgallery@gmail.com</a>
           </div>
         </div>
 
         <div class="info-block">
-          <div class="info-ico"><span>💬</span></div>
+          <div class="info-ico"><img src="whatsapp.svg" alt="WhatsApp" class="wa-icon"></div>
           <div class="info-text">
             <h4 class="ar">واتساب</h4>
             <h4 class="en">WhatsApp</h4>
-            <a href="https://wa.me/962793310203" target="_blank">+962 79 331 0203</a>
+            <a href="https://wa.me/962793310203" target="_blank">
+              <span class="ar" dir="ltr" style="font-family:var(--f-ar-serif);display:inline-block">+٩٦٢ ٧٩ ٣٣١ ٠٢٠٣</span>
+              <span class="en">+962 79 331 0203</span>
+            </a>
           </div>
         </div>
 
         <!-- Social Links -->
         <div class="social-row">
           <a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank" class="soc-btn ig" rel="noopener">
-            📸 Instagram
+            <img src="instagram.svg" alt="" class="ig-icon"> Instagram
           </a>
           <a href="https://wa.me/962793310203" target="_blank" class="soc-btn wa" rel="noopener">
-            💬 WhatsApp
+            <img src="whatsapp.svg" alt="" class="wa-icon"> WhatsApp
           </a>
-          <a href="mailto:jadalgallery@gmail.com" class="soc-btn em">
-            ✉ Email
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener" class="soc-btn em">
+            <img src="gmail.svg" alt="" class="gmail-icon"> Email
           </a>
         </div>
 
@@ -336,9 +339,9 @@
         <h4 class="ar">تابعنا</h4>
         <h4 class="en">Follow Us</h4>
         <ul>
-          <li><a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank">Instagram</a></li>
-          <li><a href="https://wa.me/962793310203" target="_blank">WhatsApp</a></li>
-          <li><a href="mailto:jadalgallery@gmail.com">Email</a></li>
+          <li><a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank"><img src="instagram.svg" alt="" class="ig-icon"> Instagram</a></li>
+          <li><a href="https://wa.me/962793310203" target="_blank"><img src="whatsapp.svg" alt="" class="wa-icon"> WhatsApp</a></li>
+          <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener"><img src="gmail.svg" alt="" class="gmail-icon"> Email</a></li>
         </ul>
       </div>
     </div>
@@ -347,14 +350,19 @@
       <span class="ar">© ٢٠٢٤ معرض جدل. جميع الحقوق محفوظة.</span>
       <span class="en">© 2024 Jadal Gallery. All rights reserved.</span>
       <div class="foot-soc">
-        <a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank">📸</a>
-        <a href="https://wa.me/962793310203" target="_blank">💬</a>
-        <a href="mailto:jadalgallery@gmail.com">✉</a>
+        <a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank"><img src="instagram.svg" alt="Instagram" class="ig-icon"></a>
+        <a href="https://wa.me/962793310203" target="_blank"><img src="whatsapp.svg" alt="WhatsApp" class="wa-icon"></a>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener"><img src="gmail.svg" alt="Email" class="gmail-icon"></a>
       </div>
     </div>
   </div>
 </footer>
 
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

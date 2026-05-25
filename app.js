@@ -1,5 +1,8 @@
-/* ── Jadal Gallery — app.js ── */
+/* ══════════════════════════════════════════════════════
+   Jadal Gallery — app.js  (Firebase Edition)
+══════════════════════════════════════════════════════ */
 
+/* ── Artists ─────────────────────────────────────────── */
 const ARTISTS = {
   'Mohammed Al-Turki': {
     nameAr: 'محمد التركي', nameEn: 'Mohammed Al-Turki',
@@ -39,6 +42,7 @@ const ARTISTS = {
   }
 };
 
+/* ── Default artworks (shown when Firestore is empty) ─── */
 const DEFAULT_ARTWORKS = [
   {
     id: 1, titleAr: 'عمّان المعاد تخيّلها', titleEn: 'Amman Reimagined',
@@ -114,15 +118,169 @@ const DEFAULT_ARTWORKS = [
   }
 ];
 
-/* ── Language Toggle ── */
+/* ── Firebase state ──────────────────────────────────── */
+let db         = null;   // Firestore
+let stor       = null;   // Storage
+let isAdmin    = false;
+let _imageFile = null;   // raw File object for upload
+let uploadedImg = null;  // base64 preview
+
+/* ── Firebase init ───────────────────────────────────── */
+function initFirebase() {
+  if (typeof firebase === 'undefined' || !window.FIREBASE_CONFIG) return;
+  // Check if config is still placeholder
+  if (window.FIREBASE_CONFIG.apiKey === 'PASTE_YOUR_API_KEY') return;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    db   = firebase.firestore();
+    stor = firebase.storage();
+  } catch(e) {
+    console.warn('Firebase init failed – using local data', e);
+  }
+}
+
+/* ── Data layer ──────────────────────────────────────── */
+async function getArtworks() {
+  if (db) {
+    try {
+      const snap = await db.collection('artworks').orderBy('createdAt', 'asc').get();
+      if (!snap.empty) {
+        return snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
+      }
+    } catch(e) {
+      console.warn('Firestore read error', e);
+    }
+  }
+  // Fallback: localStorage (works during development before Firebase is set up)
+  const raw = localStorage.getItem('jadal-artworks');
+  if (raw) { try { return JSON.parse(raw); } catch(e) {} }
+  return DEFAULT_ARTWORKS;
+}
+
+async function persistArtwork(art, imageFile) {
+  let imgUrl = art.img; // base64 or null
+
+  // Upload image to Firebase Storage if available
+  if (imageFile && stor) {
+    try {
+      const ref  = stor.ref(`artworks/${Date.now()}_${imageFile.name}`);
+      const snap = await ref.put(imageFile);
+      imgUrl = await snap.ref.getDownloadURL();
+    } catch(e) {
+      console.warn('Storage upload failed – keeping base64', e);
+    }
+  }
+
+  const payload = { ...art, img: imgUrl };
+  delete payload._docId; // don't store Firestore doc ID in the doc itself
+
+  if (db) {
+    try {
+      await db.collection('artworks').add({
+        ...payload,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      return;
+    } catch(e) {
+      console.warn('Firestore write error – falling back to localStorage', e);
+    }
+  }
+
+  // Fallback: localStorage
+  const list = JSON.parse(localStorage.getItem('jadal-artworks') || 'null') || [];
+  list.push({ ...payload, id: Date.now() });
+  localStorage.setItem('jadal-artworks', JSON.stringify(list));
+}
+
+async function removeArtwork(docId, localId) {
+  if (db && docId) {
+    try {
+      await db.collection('artworks').doc(docId).delete();
+      return;
+    } catch(e) {
+      console.warn('Firestore delete error', e);
+    }
+  }
+  // Fallback: localStorage
+  const list = JSON.parse(localStorage.getItem('jadal-artworks') || '[]');
+  localStorage.setItem('jadal-artworks',
+    JSON.stringify(list.filter(a => a.id !== localId)));
+}
+
+/* ── Admin auth ──────────────────────────────────────── */
+function initAdminLogin() {
+  checkAdminSession();
+
+  // Triple-click the footer copyright line → open admin prompt
+  let clicks = 0, timer;
+  document.querySelectorAll('.footer__bottom').forEach(el => {
+    el.addEventListener('click', () => {
+      clicks++;
+      clearTimeout(timer);
+      timer = setTimeout(() => { clicks = 0; }, 700);
+      if (clicks >= 3) { clicks = 0; promptAdmin(); }
+    });
+  });
+}
+
+function checkAdminSession() {
+  if (sessionStorage.getItem('jadal-admin') === '1') {
+    isAdmin = true;
+  }
+}
+
+function promptAdmin() {
+  const lang = document.documentElement.lang;
+  if (isAdmin) {
+    if (confirm(lang === 'en' ? 'Log out of admin mode?' : 'خروج من وضع المسؤول؟')) {
+      isAdmin = false;
+      sessionStorage.removeItem('jadal-admin');
+      updateAdminUI();
+      renderGallery(document.querySelector('.flt.on')?.dataset.cat);
+      renderFeatured();
+    }
+    return;
+  }
+
+  const pw = prompt('Admin password:');
+  if (pw === null) return;
+
+  if (pw === (window.ADMIN_PASSWORD || '')) {
+    isAdmin = true;
+    sessionStorage.setItem('jadal-admin', '1');
+    updateAdminUI();
+    renderGallery(document.querySelector('.flt.on')?.dataset.cat);
+    renderFeatured();
+  } else {
+    alert(lang === 'en' ? 'Incorrect password' : 'كلمة مرور خاطئة');
+  }
+}
+
+function updateAdminUI() {
+  // Show/hide the Add Artwork button
+  const addBtn = document.getElementById('openModal');
+  if (addBtn) addBtn.style.display = isAdmin ? '' : 'none';
+
+  // Create or update the admin badge
+  let badge = document.getElementById('adminBadge');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'adminBadge';
+    badge.className = 'admin-badge';
+    badge.title = 'Triple-click footer to logout';
+    badge.textContent = '🔑 Admin';
+    document.body.appendChild(badge);
+  }
+  badge.style.display = isAdmin ? 'flex' : 'none';
+}
+
+/* ── Language toggle ─────────────────────────────────── */
 function initLang() {
   const saved = localStorage.getItem('jadal-lang') || 'ar';
   setLang(saved, false);
-
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const cur = document.documentElement.lang;
-      setLang(cur === 'ar' ? 'en' : 'ar', true);
+      setLang(document.documentElement.lang === 'ar' ? 'en' : 'ar', true);
     });
   });
 }
@@ -136,7 +294,7 @@ function setLang(lang, save) {
   if (save) localStorage.setItem('jadal-lang', lang);
 }
 
-/* ── Nav ── */
+/* ── Nav ─────────────────────────────────────────────── */
 function initNav() {
   const nav    = document.querySelector('.nav');
   const burger = document.querySelector('.nav__burger');
@@ -151,7 +309,6 @@ function initNav() {
     burger.classList.toggle('is-open', open);
   });
 
-  // Close menu when a link is tapped
   mobile && mobile.querySelectorAll('.nav__link').forEach(a => {
     a.addEventListener('click', () => {
       mobile.classList.remove('open');
@@ -159,16 +316,14 @@ function initNav() {
     });
   });
 
-  // Close menu on outside tap
   document.addEventListener('click', e => {
     if (mobile && mobile.classList.contains('open') &&
-        !mobile.contains(e.target) && !burger.contains(e.target)) {
+        !mobile.contains(e.target) && burger && !burger.contains(e.target)) {
       mobile.classList.remove('open');
       burger.classList.remove('is-open');
     }
   });
 
-  // Active link
   const page = location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav__link').forEach(a => {
     const href = a.getAttribute('href');
@@ -178,84 +333,99 @@ function initNav() {
   });
 }
 
-/* ── Gallery ── */
-function getArtworks() {
-  const saved = localStorage.getItem('jadal-artworks');
-  if (saved) {
-    try { return JSON.parse(saved); } catch(e) {}
-  }
-  return DEFAULT_ARTWORKS;
-}
-
-function saveArtworks(list) {
-  localStorage.setItem('jadal-artworks', JSON.stringify(list));
-}
-
+/* ── Card builder ────────────────────────────────────── */
 function buildCard(art) {
-  const lang = document.documentElement.lang;
-  const title  = lang === 'en' ? art.titleEn  : art.titleAr;
-  const artist = lang === 'en' ? art.artistEn : art.artistAr;
-  const medium = lang === 'en' ? art.mediumEn : art.mediumAr;
-  const desc   = lang === 'en' ? art.descEn   : art.descAr;
+  const lang       = document.documentElement.lang;
+  const title      = lang === 'en' ? (art.titleEn  || '') : (art.titleAr  || '');
   const priceLabel = lang === 'en' ? 'JOD' : 'دينار';
-  const inquire = lang === 'en' ? 'Inquire' : 'استفسر';
+  const inquire    = lang === 'en' ? 'Inquire' : 'استفسر';
+  const deleteLabel = lang === 'en' ? 'Delete' : 'حذف';
 
   const imgHTML = art.img
     ? `<img src="${art.img}" alt="${title}" loading="lazy">`
     : `<div class="card__placeholder ${art.pg || 'pg-1'}"></div>`;
 
-  const safeArtist = art.artistEn.replace(/'/g, "\\'");
+  const safeArtist = (art.artistEn || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  const safeDocId  = (art._docId   || '').replace(/'/g, "\\'");
+
+  const deleteBtn = isAdmin ? `
+    <button class="card__delete" title="${deleteLabel}"
+      onclick="event.stopPropagation();handleDelete('${safeDocId}',${art.id||0})">✕</button>
+  ` : '';
+
   return `
-  <article class="card" data-category="${art.category}" data-id="${art.id}"
+  <article class="card" data-category="${art.category||''}" data-id="${art.id||''}"
     onclick="showArtistBio('${safeArtist}')" style="cursor:pointer">
     <div class="card__img">
       ${imgHTML}
-      <div class="card__badge"><span class="ar">${art.mediumAr}</span><span class="en">${art.mediumEn}</span></div>
+      <div class="card__badge">
+        <span class="ar">${art.mediumAr||''}</span>
+        <span class="en">${art.mediumEn||''}</span>
+      </div>
+      ${deleteBtn}
     </div>
     <div class="card__body">
       <div class="card__meta">
-        <span class="card__medium"><span class="ar">${art.mediumAr}</span><span class="en">${art.mediumEn}</span></span>
-        <span class="card__year">${art.year}</span>
+        <span class="card__medium">
+          <span class="ar">${art.mediumAr||''}</span>
+          <span class="en">${art.mediumEn||''}</span>
+        </span>
+        <span class="card__year">${art.year||''}</span>
       </div>
       <h3 class="card__title">
-        <span class="ar">${art.titleAr}</span>
-        <span class="en">${art.titleEn}</span>
+        <span class="ar">${art.titleAr||''}</span>
+        <span class="en">${art.titleEn||''}</span>
       </h3>
       <p class="card__artist">
-        <span class="ar">${art.artistAr}</span>
-        <span class="en">${art.artistEn}</span>
+        <span class="ar">${art.artistAr||''}</span>
+        <span class="en">${art.artistEn||''}</span>
       </p>
       <p class="card__desc">
-        <span class="ar">${art.descAr}</span>
-        <span class="en">${art.descEn}</span>
+        <span class="ar">${art.descAr||''}</span>
+        <span class="en">${art.descEn||''}</span>
       </p>
       <div class="card__foot">
         <div class="card__price">
-          ${art.price.toLocaleString()} <span>${priceLabel}</span>
+          ${(art.price||0).toLocaleString()} <span>${priceLabel}</span>
         </div>
-        <span class="card__inquiry" onclick="event.stopPropagation();handleInquiry('${title}', ${art.price})">${inquire}</span>
+        <span class="card__inquiry"
+          onclick="event.stopPropagation();handleInquiry('${title}',${art.price||0})">
+          ${inquire}
+        </span>
       </div>
     </div>
   </article>`;
 }
 
-function renderGallery(filter) {
+/* ── Gallery render ──────────────────────────────────── */
+async function renderGallery(filter) {
   const grid = document.getElementById('galleryGrid');
   if (!grid) return;
-  const artworks = getArtworks();
-  const list = filter && filter !== 'all'
+
+  // Show loading dots
+  grid.innerHTML = '<div class="gallery-loading"><span></span><span></span><span></span></div>';
+
+  const artworks = await getArtworks();
+  const list = (filter && filter !== 'all')
     ? artworks.filter(a => a.category === filter)
     : artworks;
-  grid.innerHTML = list.map(buildCard).join('');
+
+  const lang = document.documentElement.lang;
+  grid.innerHTML = list.length
+    ? list.map(buildCard).join('')
+    : `<p class="gallery-empty">${lang === 'en' ? 'No artworks found.' : 'لا توجد أعمال.'}</p>`;
+
+  updateAdminUI();
 }
 
-function renderFeatured() {
+async function renderFeatured() {
   const grid = document.getElementById('featuredGrid');
   if (!grid) return;
-  const artworks = getArtworks().slice(0, 3);
+  const artworks = (await getArtworks()).slice(0, 3);
   grid.innerHTML = artworks.map(buildCard).join('');
 }
 
+/* ── Filters ─────────────────────────────────────────── */
 function initFilters() {
   document.querySelectorAll('.flt').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -266,14 +436,12 @@ function initFilters() {
   });
 }
 
-/* ── Add Artwork Modal ── */
-let uploadedImg = null;
-
+/* ── Add Artwork modal ───────────────────────────────── */
 function initModal() {
-  const openBtn = document.getElementById('openModal');
-  const overlay = document.getElementById('modalOverlay');
-  const closeBtn = document.getElementById('closeModal');
-  const form = document.getElementById('addArtworkForm');
+  const openBtn   = document.getElementById('openModal');
+  const overlay   = document.getElementById('modalOverlay');
+  const closeBtn  = document.getElementById('closeModal');
+  const form      = document.getElementById('addArtworkForm');
   const fileInput = document.getElementById('fileInput');
   const uploadZone = document.getElementById('uploadZone');
 
@@ -293,15 +461,12 @@ function initModal() {
   });
 
   fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
-
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    submitArtwork();
-  });
+  form.addEventListener('submit', e => { e.preventDefault(); submitArtwork(); });
 }
 
 function handleFile(file) {
   if (!file || !file.type.startsWith('image/')) return;
+  _imageFile = file;
   const reader = new FileReader();
   reader.onload = ev => {
     uploadedImg = ev.target.result;
@@ -315,6 +480,7 @@ function closeModal() {
   const overlay = document.getElementById('modalOverlay');
   overlay && overlay.classList.remove('open');
   uploadedImg = null;
+  _imageFile  = null;
   const form = document.getElementById('addArtworkForm');
   form && form.reset();
   const zone = document.getElementById('uploadZone');
@@ -324,84 +490,112 @@ function closeModal() {
     <p class="en">Click or drag artwork image here</p>`;
 }
 
-function submitArtwork() {
-  const val = id => document.getElementById(id)?.value.trim();
+async function submitArtwork() {
+  const val = id => document.getElementById(id)?.value.trim() || '';
+
+  const submitBtn = document.querySelector('#addArtworkForm button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="ar">جاري الحفظ...</span><span class="en">Saving...</span>';
+  }
+
   const newArt = {
-    id: Date.now(),
+    id:       Date.now(),
     titleAr:  val('fTitleAr')  || 'بدون عنوان',
     titleEn:  val('fTitleEn')  || 'Untitled',
     artistAr: val('fArtistAr') || 'فنان',
     artistEn: val('fArtistEn') || 'Artist',
-    mediumAr: val('fMediumAr') || 'وسيط',
-    mediumEn: val('fMediumEn') || 'Medium',
-    category: val('fCategory') || 'painting',
+    mediumAr: val('fMediumAr') || '',
+    mediumEn: val('fMediumEn') || '',
+    category: document.getElementById('fCategory')?.value || 'painting',
     year:     parseInt(val('fYear')) || new Date().getFullYear(),
     price:    parseFloat(val('fPrice')) || 0,
-    descAr:   val('fDescAr') || '',
-    descEn:   val('fDescEn') || '',
-    pg:       `pg-${Math.floor(Math.random()*8)+1}`,
+    descAr:   val('fDescAr'),
+    descEn:   val('fDescEn'),
+    pg:       `pg-${Math.floor(Math.random() * 8) + 1}`,
     img:      uploadedImg
   };
 
-  const list = getArtworks();
-  list.push(newArt);
-  saveArtworks(list);
-  renderGallery();
-  closeModal();
+  try {
+    await persistArtwork(newArt, _imageFile);
+    closeModal();
+    await renderGallery(document.querySelector('.flt.on')?.dataset.cat);
+    await renderFeatured();
+  } catch(e) {
+    console.error('Failed to save artwork', e);
+    const lang = document.documentElement.lang;
+    alert(lang === 'en' ? 'Failed to save. Please try again.' : 'فشل الحفظ. حاول مرة أخرى.');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span class="ar">إضافة إلى المجموعة</span><span class="en">Add to Collection</span>';
+    }
+  }
 }
 
-/* ── Contact Form ── */
+/* ── Delete artwork ──────────────────────────────────── */
+async function handleDelete(docId, localId) {
+  if (!isAdmin) return;
+  const lang = document.documentElement.lang;
+  if (!confirm(lang === 'en' ? 'Delete this artwork?' : 'هل تريد حذف هذا العمل؟')) return;
+  await removeArtwork(docId, localId);
+  await renderGallery(document.querySelector('.flt.on')?.dataset.cat);
+  await renderFeatured();
+}
+
+/* ── Contact form ────────────────────────────────────── */
 function initContact() {
   const form = document.getElementById('contactForm');
   if (!form) return;
 
-  // Set Formspree action — replace YOUR_FORM_ID with actual ID
-  form.action = 'https://formspree.io/f/YOUR_FORM_ID';
-  form.method = 'POST';
-
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = form.querySelector('button[type="submit"]');
-    const orig = btn.textContent;
-    btn.textContent = '...';
-    btn.disabled = true;
+    const lang = document.documentElement.lang;
+    const btn  = form.querySelector('button[type="submit"]');
+    const orig = btn.innerHTML;
+
+    // No Formspree ID yet → send via WhatsApp
+    if (!window.FORMSPREE_ID) {
+      const name    = document.getElementById('cName')?.value    || '';
+      const email   = document.getElementById('cEmail')?.value   || '';
+      const subject = document.getElementById('cSubject')?.value || '';
+      const message = document.getElementById('cMsg')?.value     || '';
+      const text = `${name} — ${email}\n${subject}\n\n${message}`;
+      window.open(`https://wa.me/962793310203?text=${encodeURIComponent(text)}`, '_blank');
+      form.reset();
+      return;
+    }
+
+    btn.innerHTML  = '<span class="ar">جاري الإرسال...</span><span class="en">Sending...</span>';
+    btn.disabled   = true;
+
     try {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
+      const res = await fetch(`https://formspree.io/f/${window.FORMSPREE_ID}`, {
+        method:  'POST',
+        body:    new FormData(form),
         headers: { Accept: 'application/json' }
       });
       if (res.ok) {
-        btn.textContent = document.documentElement.lang === 'en' ? 'Sent ✓' : 'أُرسلت ✓';
+        btn.innerHTML = `<span class="ar">أُرسلت ✓</span><span class="en">Sent ✓</span>`;
         form.reset();
-        setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
-      } else {
-        throw new Error();
-      }
+        setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 3000);
+      } else { throw new Error(); }
     } catch {
-      btn.textContent = document.documentElement.lang === 'en' ? 'Error — try again' : 'خطأ — أعد المحاولة';
-      btn.disabled = false;
+      btn.innerHTML = `<span class="ar">خطأ — أعد المحاولة</span><span class="en">Error — try again</span>`;
+      btn.disabled  = false;
     }
   });
 }
 
-/* ── Artist Bio Modal ── */
+/* ── Artist bio modal ────────────────────────────────── */
 function showArtistBio(artistEn) {
   const artist = ARTISTS[artistEn];
   if (!artist) return;
-  const lang = document.documentElement.lang;
-
-  const overlay  = document.getElementById('artistOverlay');
-  const nameEl   = document.getElementById('artistModalName');
-  const imgEl    = document.getElementById('artistModalImg');
-  const bioEl    = document.getElementById('artistModalBio');
-
+  const lang    = document.documentElement.lang;
+  const overlay = document.getElementById('artistOverlay');
   if (!overlay) return;
-
-  nameEl.textContent = lang === 'en' ? artist.nameEn : artist.nameAr;
-  imgEl.className    = artist.pg;
-  bioEl.textContent  = lang === 'en' ? artist.bioEn  : artist.bioAr;
-
+  document.getElementById('artistModalName').textContent = lang === 'en' ? artist.nameEn : artist.nameAr;
+  document.getElementById('artistModalImg').className    = artist.pg;
+  document.getElementById('artistModalBio').textContent  = lang === 'en' ? artist.bioEn  : artist.bioAr;
   overlay.classList.add('open');
 }
 
@@ -409,35 +603,33 @@ function initArtistModal() {
   const overlay  = document.getElementById('artistOverlay');
   const closeBtn = document.getElementById('closeArtistModal');
   if (!overlay) return;
-
   closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('open');
-  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
 }
 
+/* ── WhatsApp inquiry ────────────────────────────────── */
 function handleInquiry(title, price) {
   const lang = document.documentElement.lang;
-  const msg = lang === 'en'
+  const msg  = lang === 'en'
     ? `Hello, I'm interested in the artwork "${title}" priced at ${price} JOD. Could you provide more details?`
     : `مرحباً، أنا مهتم بالعمل الفني "${title}" بسعر ${price} دينار. هل يمكنكم تزويدي بمزيد من التفاصيل؟`;
-  const wa = `https://wa.me/962793310203?text=${encodeURIComponent(msg)}`;
-  window.open(wa, '_blank');
+  window.open(`https://wa.me/962793310203?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-/* ── Lang observer to re-render dynamic content ── */
+/* ── Language observer (re-renders on lang change) ───── */
 function watchLang() {
-  const obs = new MutationObserver(() => {
+  new MutationObserver(() => {
     renderGallery(document.querySelector('.flt.on')?.dataset.cat);
     renderFeatured();
-  });
-  obs.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 }
 
-/* ── Init ── */
+/* ── Init ────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+  initFirebase();
   initLang();
   initNav();
+  initAdminLogin();
   renderFeatured();
   renderGallery();
   initFilters();
@@ -445,4 +637,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initArtistModal();
   initContact();
   watchLang();
+  updateAdminUI(); // hide Add button by default
 });
