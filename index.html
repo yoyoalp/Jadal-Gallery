@@ -4,9 +4,545 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>معرض جدل | Jadal Gallery</title>
-  <!-- github auto-deploy test -->
   <meta name="description" content="معرض جدل — مساحة فنية مستقلة في جبل اللويبدة، عمّان. Jadal Gallery — independent art space in Jabal Al Lweibdeh, Amman.">
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       PREMIUM OVERLAY — Editorial Luxury · Z-Axis Cascade
+       Overrides style.css with agency-tier aesthetics
+       All functional classes (.ar/.en/Firebase) preserved.
+    ═══════════════════════════════════════════════════════════ */
+
+    :root {
+      --cream:    #FDFBF7;
+      --ink:      #0f0d0a;
+      --ink-mute: #4a4540;
+      --gold:     #C4A574;
+      --gold-dim: rgba(196,165,116,.12);
+      --blue:     #113582;
+      --border:   rgba(15,13,10,.08);
+      --ease-out: cubic-bezier(0.32,0.72,0,1);
+      --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    /* ── Base ── */
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'Amiri', Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    html[lang="en"] body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    /* ── Noise grain overlay (fixed, non-scrolling) ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      opacity: .025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 180px;
+    }
+
+    /* ════════════════════════════════════
+       NAV — Floating glass pill
+    ════════════════════════════════════ */
+    .nav {
+      position: fixed;
+      top: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 3rem);
+      max-width: 900px;
+      background: rgba(253,251,247,.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: .6rem 1rem .6rem 1.4rem;
+      box-shadow: 0 2px 32px rgba(15,13,10,.06), 0 1px 0 rgba(255,255,255,.9) inset;
+      transition: box-shadow .4s var(--ease-out), background .4s;
+      z-index: 200;
+    }
+    html[lang="ar"] .nav { direction: rtl; }
+    html[lang="en"] .nav { direction: ltr; }
+
+    .nav.scrolled {
+      background: rgba(253,251,247,.95);
+      box-shadow: 0 4px 48px rgba(15,13,10,.1), 0 1px 0 rgba(255,255,255,.9) inset;
+    }
+
+    .nav__inner { padding: 0; }
+
+    .nav__logo-name {
+      font-family: 'Amiri', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+    html[lang="en"] .nav__logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .nav__link {
+      font-size: .82rem;
+      color: var(--ink-mute);
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+    html[lang="en"] .nav__link { font-family: 'Cormorant Garamond', serif; font-size: .9rem; }
+
+    .nav__link:hover { color: var(--ink); border-bottom-color: transparent; }
+
+    .lang-btn {
+      background: var(--ink);
+      color: var(--cream);
+      border-radius: 9999px;
+      padding: .3rem .85rem;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      transition: all .3s var(--ease-out);
+    }
+    .lang-btn:hover { background: var(--blue); transform: scale(1.04); }
+
+    /* ════════════════════════════════════
+       HERO — Editorial Split
+    ════════════════════════════════════ */
+    .hero {
+      background: var(--cream);
+      min-height: 100dvh;
+      padding-top: calc(70px + 5rem);
+      padding-bottom: 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle radial gold wash */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      background: radial-gradient(circle, rgba(196,165,116,.13) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    /* Eyebrow pill */
+    .hero__eyebrow { margin-bottom: 1.75rem; }
+    .hero__eyebrow-bar { display: none; }
+    .hero__eyebrow-txt {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--gold-dim);
+      border: 1px solid rgba(196,165,116,.25);
+      border-radius: 9999px;
+      padding: .3rem 1rem;
+      font-size: .72rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: #7a5c30;
+      font-family: 'Cormorant Garamond', serif;
+    }
+    html[lang="ar"] .hero__eyebrow-txt {
+      font-family: 'Amiri', serif;
+      letter-spacing: 0;
+      word-spacing: .1em;
+    }
+
+    /* Hero title — cinematic */
+    .hero__title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 7vw, 6rem);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      margin-bottom: 1.75rem;
+    }
+    html[lang="ar"] .hero__title {
+      font-family: 'Amiri', serif;
+      font-size: clamp(3rem, 6.5vw, 5.5rem);
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    .hero__title em {
+      color: var(--blue);
+      font-style: italic;
+    }
+    html[lang="ar"] .hero__title em { font-style: normal; }
+
+    /* Gold rule above subtitle */
+    .hero__subtitle {
+      position: relative;
+      padding-top: 1.25rem;
+      font-size: 1.1rem;
+      line-height: 1.9;
+      color: var(--ink-mute);
+      margin-bottom: 2.5rem;
+      max-width: 480px;
+    }
+    .hero__subtitle::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 48px;
+      height: 1.5px;
+      background: var(--gold);
+    }
+    html[lang="en"] .hero__subtitle::before { right: auto; left: 0; }
+
+    /* CTA buttons */
+    .hero__actions { display: flex; gap: .85rem; flex-wrap: wrap; }
+
+    .btn-blue {
+      background: var(--ink);
+      color: var(--cream);
+      border-radius: 9999px;
+      padding: .85rem 2rem;
+      font-size: .88rem;
+      font-weight: 500;
+      border: none;
+      transition: all .5s var(--ease-out);
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .btn-blue::after {
+      content: '↗';
+      width: 1.6rem; height: 1.6rem;
+      background: rgba(255,255,255,.12);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem;
+      transition: transform .4s var(--ease-spring);
+    }
+    .btn-blue:hover { background: var(--blue); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(17,53,130,.25); }
+    .btn-blue:hover::after { transform: translate(2px,-2px) scale(1.1); }
+    .btn-blue:active { transform: scale(.98); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--ink);
+      border-radius: 9999px;
+      padding: .85rem 2rem;
+      font-size: .88rem;
+      border: 1px solid var(--border);
+      transition: all .4s var(--ease-out);
+    }
+    .btn-outline:hover { border-color: var(--ink); background: rgba(15,13,10,.04); transform: translateY(-2px); }
+
+    /* Hero visual — Double-Bezel frame */
+    .hero__visual { position: relative; }
+    .hero__frame {
+      /* Outer shell */
+      background: rgba(15,13,10,.04);
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      padding: 6px;
+      box-shadow: 0 32px 80px rgba(15,13,10,.1), 0 1px 0 rgba(255,255,255,.8) inset;
+      transform: rotate(1.5deg);
+      transition: transform .6s var(--ease-out);
+    }
+    .hero__frame:hover { transform: rotate(0deg) scale(1.01); }
+    .hero__frame-bg {
+      /* Inner core */
+      background: linear-gradient(135deg, #e8e2d8 0%, #d4ccc0 100%);
+      border-radius: calc(2rem - 4px);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,.4);
+      aspect-ratio: 4/5;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Decorative Arabic calligraphy watermark inside frame */
+    .hero__frame-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Amiri', serif;
+      font-size: 7rem;
+      color: rgba(17,53,130,.08);
+      font-weight: 700;
+      z-index: 0;
+      user-select: none;
+    }
+
+    /* Stat badge — floating card */
+    .hero__badge {
+      position: absolute;
+      bottom: -1.5rem;
+      right: 1.5rem;
+      background: rgba(253,251,247,.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      padding: .9rem 1.4rem;
+      display: flex;
+      gap: 1.5rem;
+      box-shadow: 0 8px 32px rgba(15,13,10,.08);
+    }
+    html[lang="ar"] .hero__badge { right: auto; left: 1.5rem; }
+    html[lang="en"] .hero__badge { right: 1.5rem; left: auto; }
+
+    .hero__stat-n {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--blue);
+      line-height: 1;
+    }
+    .hero__stat-l { font-size: .65rem; color: var(--ink-mute); margin-top: .15rem; }
+
+    /* ════════════════════════════════════
+       ABOUT — Warm editorial
+    ════════════════════════════════════ */
+    .about {
+      background: #F5F1EA;
+      padding: 8rem 0;
+      position: relative;
+    }
+    .about::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .eyebrow {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #7a5c30;
+      background: var(--gold-dim);
+      border: 1px solid rgba(196,165,116,.2);
+      border-radius: 9999px;
+      padding: .25rem .9rem;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+    }
+    html[lang="ar"] .eyebrow { letter-spacing: 0; word-spacing: .08em; font-family: 'Amiri', serif; font-size: .78rem; }
+
+    .about__quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.3;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+    }
+    html[lang="ar"] .about__quote {
+      font-family: 'Amiri', serif;
+      font-style: normal;
+      font-weight: 400;
+    }
+
+    /* Pillars — Double-Bezel cards */
+    .pillar {
+      /* Outer shell */
+      background: rgba(255,255,255,.5);
+      border: 1px solid rgba(15,13,10,.06);
+      border-radius: 1.25rem;
+      padding: 4px;
+      transition: transform .5s var(--ease-out), box-shadow .5s;
+    }
+    .pillar:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15,13,10,.08); }
+    .pillar > .pillar__dot {
+      /* Repurpose dot as inner core header accent */
+      display: none;
+    }
+    .pillar > div:last-child {
+      /* Inner core */
+      background: rgba(253,251,247,.8);
+      border-radius: calc(1.25rem - 2px);
+      padding: 1.25rem 1.4rem;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,.7);
+    }
+    .pillar h4 { font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: .35rem; }
+    .pillar p { font-size: .88rem; color: var(--ink-mute); line-height: 1.75; }
+
+    .btn-gold {
+      background: var(--gold);
+      color: white;
+      border-radius: 9999px;
+      padding: .85rem 2rem;
+      font-size: .88rem;
+      font-weight: 500;
+      border: none;
+      transition: all .4s var(--ease-out);
+      display: inline-block;
+    }
+    .btn-gold:hover { background: #b8935a; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(196,165,116,.35); }
+
+    /* ════════════════════════════════════
+       FEATURED — generous grid
+    ════════════════════════════════════ */
+    .featured { background: var(--cream); padding: 8rem 0; }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--ink);
+    }
+    html[lang="ar"] .section-title { font-family: 'Amiri', serif; font-style: normal; font-weight: 700; }
+
+    /* Cards — Double-Bezel */
+    .card {
+      background: rgba(15,13,10,.03);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 5px;
+      transition: transform .6s var(--ease-out), box-shadow .6s;
+      overflow: visible;
+    }
+    .card:hover { transform: translateY(-6px) rotate(-.3deg); box-shadow: 0 24px 60px rgba(15,13,10,.1); }
+    .card__img {
+      border-radius: calc(1.5rem - 3px) calc(1.5rem - 3px) 0 0;
+      overflow: hidden;
+    }
+    .card__body {
+      background: rgba(253,251,247,.9);
+      border-radius: 0 0 calc(1.5rem - 3px) calc(1.5rem - 3px);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,.8);
+      padding: 1.25rem 1.4rem 1.4rem;
+    }
+    .card__title {
+      font-family: 'Amiri', serif;
+      font-size: 1.2rem;
+    }
+    html[lang="en"] .card__title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-style: italic; }
+
+    /* ════════════════════════════════════
+       VISIT — Dark luxury strip
+    ════════════════════════════════════ */
+    .visit {
+      background: #0f0d0a;
+      padding: 6rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .visit::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 80vw; height: 80vw;
+      background: radial-gradient(circle, rgba(196,165,116,.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .visit__block h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--gold);
+      letter-spacing: .02em;
+    }
+    html[lang="ar"] .visit__block h3 {
+      font-family: 'Amiri', serif;
+      font-style: normal;
+      letter-spacing: 0;
+    }
+    .visit__block p, .visit__block address { color: rgba(253,251,247,.6); font-size: .9rem; }
+    .visit__block a { color: rgba(196,165,116,.8); transition: color .3s; }
+    .visit__block a:hover { color: var(--gold); }
+
+    /* ════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════ */
+    .footer { background: #0f0d0a; }
+    .foot-logo-ar {
+      font-family: 'Amiri', serif;
+      font-size: 2rem;
+      color: var(--cream);
+    }
+    .foot-logo-en { color: var(--gold); }
+    .foot-tagline { color: rgba(253,251,247,.5); font-size: .84rem; }
+    .footer__col h4 {
+      color: var(--gold);
+      letter-spacing: 0;
+      word-spacing: .08em;
+      font-family: 'Amiri', serif;
+    }
+    html[lang="en"] .footer__col h4 {
+      font-family: 'Cormorant Garamond', serif;
+      letter-spacing: .12em;
+    }
+
+    /* ════════════════════════════════════
+       SCROLL ENTRY ANIMATIONS
+    ════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      filter: blur(4px);
+      transition: opacity .9s var(--ease-out),
+                  transform .9s var(--ease-out),
+                  filter .9s var(--ease-out);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+    .reveal-delay-4 { transition-delay: .4s; }
+
+    /* ════════════════════════════════════
+       MOBILE
+    ════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .nav {
+        top: .75rem;
+        width: calc(100% - 1.5rem);
+        border-radius: 9999px;
+        padding: .5rem .75rem .5rem 1rem;
+      }
+      .hero { padding-top: calc(70px + 3rem); padding-bottom: 4rem; }
+      .hero__inner { grid-template-columns: 1fr; gap: 3rem; }
+      .hero__frame { transform: rotate(0deg); }
+      .hero__frame-bg { aspect-ratio: 16/9; }
+      .hero__badge { position: static; margin-top: 1rem; width: fit-content; }
+      html[lang="ar"] .hero__badge { right: auto; left: auto; }
+      .hero__subtitle::before { display: none; }
+      .about { padding: 5rem 0; }
+      .featured { padding: 5rem 0; }
+      .visit { padding: 4rem 0; }
+    }
+    @media (max-width: 480px) {
+      .hero__title { font-size: 2.8rem; }
+      .nav { width: calc(100% - 1rem); }
+    }
+  </style>
 </head>
 <body>
 
@@ -16,31 +552,29 @@
     <a href="index.html" class="nav__logo">
       <img src="Heading.png" alt="Jadal Gallery" class="nav__logo-img">
       <div>
-        <span class="nav__logo-name ar"> معرض جدل </span>
-        <span class="nav__logo-name en">Jadal <br>Gallery</span>
+        <span class="nav__logo-name ar">معرض جدل</span>
+        <span class="nav__logo-name en">Jadal Gallery</span>
         <span class="nav__logo-sub"> </span>
       </div>
     </a>
     <ul class="nav__links">
-      <li><a href="index.html"   class="nav__link"><span class="ar">الرئيسية</span><span class="en">Home</span></a></li>
-      <li><a href="gallery.html" class="nav__link"><span class="ar">المجموعة</span><span class="en">Collection</span></a></li>
-      <li><a href="exhibitions.html" class="nav__link"><span class="ar">المعارض</span><span class="en">Exhibitions</span></a></li>
+      <li><a href="index.html"              class="nav__link"><span class="ar">الرئيسية</span><span class="en">Home</span></a></li>
+      <li><a href="gallery.html"            class="nav__link"><span class="ar">المجموعة</span><span class="en">Collection</span></a></li>
+      <li><a href="exhibitions.html"        class="nav__link"><span class="ar">المعارض</span><span class="en">Exhibitions</span></a></li>
       <li><a href="exhibitions.html#contact" class="nav__link"><span class="ar">تواصل</span><span class="en">Contact</span></a></li>
     </ul>
     <div class="nav__right">
       <button class="lang-btn" aria-label="Toggle language">EN</button>
-      <button class="nav__burger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
+      <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </div>
 </nav>
 
 <!-- Mobile Nav -->
 <nav class="nav__mobile">
-  <a href="index.html"   class="nav__link"><span class="ar">الرئيسية</span><span class="en">Home</span></a>
-  <a href="gallery.html" class="nav__link"><span class="ar">المجموعة</span><span class="en">Collection</span></a>
-  <a href="exhibitions.html" class="nav__link"><span class="ar">المعارض</span><span class="en">Exhibitions</span></a>
+  <a href="index.html"              class="nav__link"><span class="ar">الرئيسية</span><span class="en">Home</span></a>
+  <a href="gallery.html"           class="nav__link"><span class="ar">المجموعة</span><span class="en">Collection</span></a>
+  <a href="exhibitions.html"       class="nav__link"><span class="ar">المعارض</span><span class="en">Exhibitions</span></a>
   <a href="exhibitions.html#contact" class="nav__link"><span class="ar">تواصل معنا</span><span class="en">Contact Us</span></a>
 </nav>
 
@@ -50,7 +584,7 @@
     <div class="hero__inner">
 
       <div class="hero__content">
-        <div class="hero__eyebrow">
+        <div class="hero__eyebrow reveal">
           <div class="hero__eyebrow-bar"></div>
           <span class="hero__eyebrow-txt">
             <span class="ar">جبل اللويبدة، عمّان</span>
@@ -58,19 +592,19 @@
           </span>
         </div>
 
-        <h1 class="hero__title">
+        <h1 class="hero__title reveal reveal-delay-1">
           <span class="ar">معرض <em>جدل</em></span>
           <span class="en">Jadal <em>Gallery</em></span>
         </h1>
 
-        <p class="hero__subtitle ar">
+        <p class="hero__subtitle ar reveal reveal-delay-2">
           مساحةٌ مستقلة لأعمال الفنانين العرب الذين يُحاوِرون الهوية والتاريخ والخرائط والصورة كوثيقة ثقافية.
         </p>
-        <p class="hero__subtitle en">
+        <p class="hero__subtitle en reveal reveal-delay-2">
           An independent space for Arab artists in dialogue with identity, history, cartography, and the image as cultural document.
         </p>
 
-        <div class="hero__actions">
+        <div class="hero__actions reveal reveal-delay-3">
           <a href="gallery.html" class="btn btn-blue">
             <span class="ar">استكشف المجموعة</span>
             <span class="en">Explore the Collection</span>
@@ -82,18 +616,13 @@
         </div>
       </div>
 
-      <div class="hero__visual">
+      <div class="hero__visual reveal reveal-delay-2">
         <div class="hero__frame">
-          <div class="hero__frame-bg"></div>
-          <!-- Replace hero-photo.jpg with your downloaded Instagram first photo -->
-          <img src="hero-photo.jpg" alt="معرض جدل" onerror="this.style.display='none'"
-               style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1">
-          <div class="hero__frame-inner" style="position:relative;z-index:2">
-        
-
+          <div class="hero__frame-bg">
+            <img src="hero-photo.jpg" alt="معرض جدل" onerror="this.style.display='none'"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;border-radius:calc(2rem - 4px)">
+            <div class="hero__frame-inner">جدل</div>
           </div>
-          <div class="hero__corner hero__corner--tl"></div>
-          <div class="hero__corner hero__corner--br"></div>
         </div>
         <div class="hero__badge">
           <div class="hero__stat">
@@ -124,60 +653,53 @@
     <div class="about__inner">
 
       <div class="about__mosaik">
-        <div class="about__tile about__tile-1" style="background:var(--cream-dark)"></div>
-        <div class="about__tile about__tile-2" style="background:var(--parchment)"></div>
-        <div class="about__tile about__tile-3" style="background:var(--cream-dark)"></div>
+        <div class="about__tile about__tile-1" style="background:#e8e2d8;border-radius:1.5rem"></div>
+        <div class="about__tile about__tile-2" style="background:#d4ccc0;border-radius:1.5rem"></div>
+        <div class="about__tile about__tile-3" style="background:#e8e2d8;border-radius:1.5rem"></div>
       </div>
 
       <div class="about__text">
-        <span class="eyebrow ar">عن الغاليري</span>
-        <span class="eyebrow en">About the Gallery</span>
+        <span class="eyebrow ar reveal">عن الغاليري</span>
+        <span class="eyebrow en reveal">About the Gallery</span>
 
-        <h2 class="about__quote ar">
-          حيث تُحاوِر الفنون هويّتنا العربية
-        </h2>
-        <h2 class="about__quote en">
-          Where art speaks to Arab identity
-        </h2>
+        <h2 class="about__quote ar reveal reveal-delay-1">حيث تُحاوِر الفنون هويّتنا العربية</h2>
+        <h2 class="about__quote en reveal reveal-delay-1">Where art speaks to Arab identity</h2>
 
-        <p class="about__body ar">
+        <p class="about__body ar reveal reveal-delay-2">
           تأسَّست جدل معرض عام ٢٠٢٦ في قلب جبل اللويبدة بعمّان. نُقدِّم برنامجاً فنياً يجمع بين المعارض الفردية والجماعية والتجهيزات الخاصة، مع التركيز على الأعمال التي تُساءل مفاهيم الانتماء والذاكرة والمكان.
         </p>
-        <p class="about__body en">
+        <p class="about__body en reveal reveal-delay-2">
           Founded in 2026 in the heart of Jabal Al Lweibdeh, Amman, Jadal Gallery presents a programme of solo and group exhibitions, site-specific installations, and artist residencies — centred on works that interrogate belonging, memory, and place.
         </p>
 
         <div class="about__pillars">
-          <div class="pillar">
+          <div class="pillar reveal reveal-delay-1">
             <div class="pillar__dot"></div>
             <div>
-              <h4 class="ar">الهوية العربية</h4>
-              <h4 class="en">Arab Identity</h4>
+              <h4 class="ar">الهوية العربية</h4><h4 class="en">Arab Identity</h4>
               <p class="ar">أعمال تُعيد تأمُّل السرديات العربية المعاصرة</p>
               <p class="en">Works reimagining contemporary Arab narratives</p>
             </div>
           </div>
-          <div class="pillar">
+          <div class="pillar reveal reveal-delay-2">
             <div class="pillar__dot"></div>
             <div>
-              <h4 class="ar">الخرائط والتاريخ</h4>
-              <h4 class="en">Cartography & History</h4>
+              <h4 class="ar">الخرائط والتاريخ</h4><h4 class="en">Cartography & History</h4>
               <p class="ar">استحضار الجغرافيا كوثيقة ثقافية وسياسية</p>
               <p class="en">Geography as cultural and political document</p>
             </div>
           </div>
-          <div class="pillar">
+          <div class="pillar reveal reveal-delay-3">
             <div class="pillar__dot"></div>
             <div>
-              <h4 class="ar">الصورة والذاكرة</h4>
-              <h4 class="en">Image & Memory</h4>
+              <h4 class="ar">الصورة والذاكرة</h4><h4 class="en">Image & Memory</h4>
               <p class="ar">التصوير الفوتوغرافي والفيديو كأداة للحفاظ والتساؤل</p>
               <p class="en">Photography and video as tools of preservation and inquiry</p>
             </div>
           </div>
         </div>
 
-        <div style="margin-top:2rem">
+        <div style="margin-top:2.5rem" class="reveal reveal-delay-2">
           <a href="exhibitions.html" class="btn btn-gold">
             <span class="ar">اكتشف معارضنا</span>
             <span class="en">Discover Our Exhibitions</span>
@@ -192,7 +714,7 @@
 <!-- ═══ FEATURED ═══ -->
 <section class="featured">
   <div class="wrap">
-    <div class="section-hdr">
+    <div class="section-hdr reveal">
       <div>
         <span class="eyebrow ar">من المجموعة</span>
         <span class="eyebrow en">From the Collection</span>
@@ -214,34 +736,28 @@
 <section class="visit">
   <div class="wrap">
     <div class="visit__inner">
-
-      <div class="visit__block">
+      <div class="visit__block reveal">
         <h3 class="ar">ساعات العمل</h3>
         <h3 class="en">Opening Hours</h3>
         <p class="ar">يومياً<br>١٠ صباحاً — ١٢ منتصف الليل</p>
         <p class="en">Every Day<br>10:00 AM — 12:00 Midnight</p>
       </div>
-
-      <div class="visit__block">
+      <div class="visit__block reveal reveal-delay-1">
         <h3 class="ar">الموقع</h3>
         <h3 class="en">Location</h3>
         <address class="ar"><a href="https://www.google.com/maps/place/Jadal+for+Knowledge+and+Culture/@31.9526801,35.9318636,928m/data=!3m2!1e3!4b1!4m6!3m5!1s0x151b5f90a9dc6b6b:0x51bce4434839bd09!8m2!3d31.9526801!4d35.9318636!16s%2Fg%2F11c0r52cxp!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDUxMy4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">جبل اللويبدة، عمّان، الأردن ↗</a></address>
         <address class="en"><a href="https://www.google.com/maps/place/Jadal+for+Knowledge+and+Culture/@31.9526801,35.9318636,928m/data=!3m2!1e3!4b1!4m6!3m5!1s0x151b5f90a9dc6b6b:0x51bce4434839bd09!8m2!3d31.9526801!4d35.9318636!16s%2Fg%2F11c0r52cxp!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDUxMy4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">Jabal Al Lweibdeh, Amman ↗</a></address>
       </div>
-
-      <div class="visit__block">
+      <div class="visit__block reveal reveal-delay-2">
         <h3 class="ar">تواصل معنا</h3>
         <h3 class="en">Get in Touch</h3>
-        <p>
-          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener">jadalgallery@gmail.com</a>
-        </p>
+        <p><a href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener">jadalgallery@gmail.com</a></p>
         <div class="social-icons" style="margin-top:.85rem">
           <a class="soc-ico" href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank" aria-label="Instagram"><img src="instagram.svg" alt="Instagram" class="ig-icon"></a>
           <a class="soc-ico" href="https://wa.me/962793310203" target="_blank" aria-label="WhatsApp"><img src="whatsapp.svg" alt="WhatsApp" class="wa-icon"></a>
           <a class="soc-ico" href="https://mail.google.com/mail/?view=cm&fs=1&to=jadalgallery@gmail.com" target="_blank" rel="noopener" aria-label="Email"><img src="gmail.svg" alt="Email" class="gmail-icon"></a>
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -253,14 +769,13 @@
       <div>
         <img src="Heading.png" alt="Jadal Gallery" class="foot-logo-img">
         <div class="foot-logo-ar ar">جدل معرض</div>
-        <div class="foot-logo-ar en" style="font-family:'Playfair Display',serif">Jadal</div>
+        <div class="foot-logo-ar en" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-style:italic">Jadal</div>
         <div class="foot-logo-en">Gallery · Amman</div>
         <p class="foot-tagline ar">مساحة فنية مستقلة في جبل اللويبدة، عمّان — نُقدِّم أعمالاً تُحاوِر الهوية والذاكرة العربية.</p>
         <p class="foot-tagline en">An independent art space in Jabal Al Lweibdeh, Amman — presenting works in dialogue with Arab identity and memory.</p>
       </div>
       <div class="footer__col">
-        <h4 class="ar">روابط</h4>
-        <h4 class="en">Links</h4>
+        <h4 class="ar">روابط</h4><h4 class="en">Links</h4>
         <ul>
           <li><a href="index.html"><span class="ar">الرئيسية</span><span class="en">Home</span></a></li>
           <li><a href="gallery.html"><span class="ar">المجموعة</span><span class="en">Collection</span></a></li>
@@ -269,8 +784,7 @@
         </ul>
       </div>
       <div class="footer__col">
-        <h4 class="ar">تابعنا</h4>
-        <h4 class="en">Follow Us</h4>
+        <h4 class="ar">تابعنا</h4><h4 class="en">Follow Us</h4>
         <ul>
           <li><a href="https://www.instagram.com/jadal.gallery?igsh=YWxxNGFmaGNodHR2&utm_source=qr" target="_blank"><img src="instagram.svg" alt="" class="ig-icon"> Instagram</a></li>
           <li><a href="https://wa.me/962793310203" target="_blank"><img src="whatsapp.svg" alt="" class="wa-icon"> WhatsApp</a></li>
@@ -297,5 +811,24 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="app.js"></script>
+
+<script>
+  // ── Scroll reveal via IntersectionObserver (GPU-safe) ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Trigger hero reveals immediately (already in viewport)
+  setTimeout(() => {
+    document.querySelectorAll('.hero .reveal').forEach(el => el.classList.add('visible'));
+  }, 100);
+</script>
 </body>
 </html>
