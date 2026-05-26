@@ -133,7 +133,7 @@ function initFirebase() {
   try {
     if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
     db   = firebase.firestore();
-    stor = firebase.storage();
+    // stor = firebase.storage(); — disabled until Cloudinary is set up for image hosting
   } catch(e) {
     console.warn('Firebase init failed – using local data', e);
   }
