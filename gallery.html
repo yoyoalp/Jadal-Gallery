@@ -6,6 +6,520 @@
   <title>المجموعة | Jadal Gallery</title>
   <meta name="description" content="أعمال فنية من مجموعة معرض جدل — لوحات، تصوير، وسائط متعددة، وتجهيزات. Jadal Gallery collection.">
   <link rel="stylesheet" href="style.css">
+
+  <!-- ── Minimalist-UI: editorial fonts ── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       MINIMALIST-UI OVERLAY — gallery.html
+       Premium Utilitarian Minimalism: warm monochrome,
+       editorial typography, bento grid, flat components.
+    ══════════════════════════════════════════════════ */
+
+    :root {
+      --canvas:    #FBFBFA;
+      --surface:   #FFFFFF;
+      --border-c:  #EAEAEA;
+      --ink:       #111111;
+      --ink-body:  #2F3437;
+      --muted:     #787774;
+      --serif-min: 'Instrument Serif', 'Playfair Display', Georgia, serif;
+      --sans-min:  'Plus Jakarta Sans', 'Helvetica Neue', system-ui, sans-serif;
+      /* pastel accents per category */
+      --p-yellow-bg: #FBF3DB; --p-yellow-tx: #956400;
+      --p-blue-bg:   #E1F3FE; --p-blue-tx:   #1F6C9F;
+      --p-green-bg:  #EDF3EC; --p-green-tx:  #346538;
+      --p-red-bg:    #FDEBEC; --p-red-tx:    #9F2F2D;
+      --p-violet-bg: #EDE9FE; --p-violet-tx: #5B3FA6;
+    }
+
+    /* ── Base override ── */
+    body { background: var(--canvas); }
+
+    /* ── Page header ── */
+    .page-hdr {
+      background: var(--canvas);
+      padding: 8rem 0 3.5rem;
+      border-bottom: 1px solid var(--border-c);
+      position: relative;
+    }
+
+    .page-hdr .eyebrow {
+      font-family: var(--sans-min);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 1.25rem;
+    }
+    html[lang="ar"] .page-hdr .eyebrow { letter-spacing: 0; word-spacing: 0.12em; }
+
+    .page-hdr h1 {
+      font-family: var(--serif-min);
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 400;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      color: var(--ink);
+    }
+    html[lang="ar"] .page-hdr h1 { letter-spacing: 0; }
+
+    .page-hdr__line { display: none; }
+
+    .page-hdr p {
+      font-family: var(--sans-min);
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 1rem;
+      max-width: 48ch;
+      line-height: 1.7;
+    }
+
+    /* Ambient radial — subtle depth without gradients in content */
+    .page-hdr::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 80% 40%, rgba(251,243,219,0.35) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .page-hdr .wrap { position: relative; z-index: 1; }
+
+    /* ── Gallery bar ── */
+    .gallery-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 0;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filters {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    /* Filter pills */
+    .flt {
+      font-family: var(--sans-min);
+      font-size: 0.67rem;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.38rem 0.95rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border-c);
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+    html[lang="ar"] .flt { letter-spacing: 0; word-spacing: 0.06em; }
+
+    .flt:hover { border-color: rgba(0,0,0,0.18); color: var(--ink); }
+
+    .flt.on                            { background: var(--ink);           color: #fff;                   border-color: var(--ink);           }
+    .flt[data-cat="painting"].on       { background: var(--p-yellow-tx);   color: var(--p-yellow-bg);     border-color: var(--p-yellow-tx);   }
+    .flt[data-cat="photography"].on    { background: var(--p-blue-tx);     color: var(--p-blue-bg);       border-color: var(--p-blue-tx);     }
+    .flt[data-cat="mixed-media"].on    { background: var(--p-green-tx);    color: var(--p-green-bg);      border-color: var(--p-green-tx);    }
+    .flt[data-cat="print"].on          { background: var(--p-red-tx);      color: var(--p-red-bg);        border-color: var(--p-red-tx);      }
+    .flt[data-cat="installation"].on   { background: var(--p-violet-tx);   color: var(--p-violet-bg);     border-color: var(--p-violet-tx);   }
+
+    /* Add button */
+    .btn.btn-blue#openModal {
+      font-family: var(--sans-min);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.5rem 1.25rem;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 5px;
+      box-shadow: none;
+      transition: background 180ms, transform 180ms;
+    }
+    .btn.btn-blue#openModal:hover  { background: #333; }
+    .btn.btn-blue#openModal:active { transform: scale(0.98); }
+
+    /* ── Gallery wrap ── */
+    .gallery-grid-wrap {
+      padding-top: 2.5rem;
+      padding-bottom: 7rem;
+    }
+
+    /* ── Bento grid ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    /* Bento variation: first item in every 5 spans 2 cols */
+    @media (min-width: 901px) {
+      .gallery-grid .card:nth-child(5n+1) { grid-column: span 2; }
+      .gallery-grid .card:nth-child(5n+1) .card__img { aspect-ratio: 16/9; }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border-c);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: none;
+      /* scroll reveal state */
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity    600ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform  600ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      transform: translateY(-3px);
+    }
+    /* keep visible + hover working together */
+    .card.visible:hover {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+
+    /* ── Card image ── */
+    .card__img {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: #F4F3F1;
+    }
+
+    .card__img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+      filter: saturate(0.92);
+    }
+
+    .card:hover .card__img img { transform: scale(1.04); filter: saturate(1); }
+
+    .card__placeholder {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Badge on image ── */
+    .card__badge {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-c);
+      border-radius: 9999px;
+      font-family: var(--sans-min);
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink);
+      padding: 0.22rem 0.65rem;
+    }
+    html[lang="en"] .card__badge { right: auto; left: 0.75rem; }
+    html[lang="ar"] .card__badge { letter-spacing: 0; }
+
+    /* ── Delete button ── */
+    .card__delete {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--border-c);
+      border-radius: 50%;
+      font-size: 0.6rem;
+      color: var(--p-red-tx);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: background 180ms;
+    }
+    html[lang="en"] .card__delete { right: auto; left: 0.6rem; }
+    .card__delete:hover { background: var(--p-red-bg); }
+
+    /* ── Card body ── */
+    .card__body { padding: 1.1rem 1.1rem 0.9rem; }
+
+    .card__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.45rem;
+    }
+
+    .card__medium {
+      font-family: var(--sans-min);
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    html[lang="ar"] .card__medium { letter-spacing: 0; word-spacing: 0.05em; }
+
+    .card__year {
+      font-family: var(--sans-min);
+      font-size: 0.62rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card__title {
+      font-family: var(--serif-min);
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+    html[lang="ar"] .card__title { letter-spacing: 0; line-height: 1.5; }
+
+    .card__artist {
+      font-family: var(--sans-min);
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.55rem;
+    }
+
+    .card__desc {
+      font-family: var(--sans-min);
+      font-size: 0.76rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 0.85rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card__foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-c);
+    }
+
+    .card__price {
+      font-family: var(--sans-min);
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .card__price span {
+      font-size: 0.67rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-inline-start: 0.15rem;
+    }
+
+    .card__inquiry {
+      font-family: var(--sans-min);
+      font-size: 0.67rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink);
+      padding: 0.3rem 0.7rem;
+      border: 1px solid var(--border-c);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 180ms, color 180ms, border-color 180ms;
+    }
+    html[lang="ar"] .card__inquiry { letter-spacing: 0; word-spacing: 0.05em; }
+    .card__inquiry:hover {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    /* ── Loading dots ── */
+    .gallery-loading {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 5rem 0;
+    }
+    .gallery-loading span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #DDDCDB;
+      animation: ml-pulse 1.5s ease-in-out infinite;
+    }
+    .gallery-loading span:nth-child(2) { animation-delay: 0.18s; }
+    .gallery-loading span:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes ml-pulse {
+      0%, 80%, 100% { background: #DDDCDB; transform: scale(1); }
+      40%           { background: var(--muted); transform: scale(1.4); }
+    }
+
+    .gallery-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--sans-min);
+      font-size: 0.88rem;
+      padding: 5rem 0;
+    }
+
+    /* ── Modals ── */
+    .overlay {
+      background: rgba(17,17,17,0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border-c);
+      border-radius: 14px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.1);
+    }
+
+    .modal__top {
+      padding: 1.4rem 1.4rem 1rem;
+      border-bottom: 1px solid var(--border-c);
+    }
+
+    .modal__top h3 {
+      font-family: var(--serif-min);
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: var(--ink);
+    }
+
+    .modal__close {
+      width: 1.7rem; height: 1.7rem;
+      border-radius: 50%;
+      background: #F4F3F1;
+      border: 1px solid var(--border-c);
+      font-size: 0.65rem;
+      color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 180ms, color 180ms;
+    }
+    .modal__close:hover { background: #EAEAEA; color: var(--ink); }
+
+    /* form fields */
+    .f-group { margin-bottom: 0.9rem; }
+    .f-group label {
+      font-family: var(--sans-min);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+    html[lang="ar"] .f-group label { letter-spacing: 0; word-spacing: 0.06em; }
+
+    .f-group input,
+    .f-group textarea,
+    .f-group select {
+      width: 100%;
+      border: 1px solid var(--border-c);
+      border-radius: 6px;
+      padding: 0.58rem 0.82rem;
+      font-family: var(--sans-min);
+      font-size: 0.83rem;
+      color: var(--ink-body);
+      background: var(--surface);
+      transition: border-color 180ms;
+    }
+    .f-group input:focus,
+    .f-group textarea:focus,
+    .f-group select:focus {
+      border-color: rgba(0,0,0,0.22);
+    }
+
+    .upload-zone {
+      border: 1.5px dashed var(--border-c);
+      border-radius: 8px;
+      background: #F7F6F3;
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 180ms, background 180ms;
+      margin-bottom: 1rem;
+    }
+    .upload-zone:hover,
+    .upload-zone.drag { border-color: rgba(0,0,0,0.22); background: #F0EFED; }
+    .upload-zone__icon { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .upload-zone p { font-family: var(--sans-min); font-size: 0.76rem; color: var(--muted); }
+    .upload-zone__preview { width: 100%; max-height: 200px; object-fit: contain; border-radius: 6px; }
+
+    #addArtworkForm button[type="submit"] {
+      font-family: var(--sans-min);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.7rem 1.5rem;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 6px;
+      transition: background 180ms, transform 180ms;
+      box-shadow: none;
+    }
+    #addArtworkForm button[type="submit"]:hover  { background: #333; }
+    #addArtworkForm button[type="submit"]:active { transform: scale(0.98); }
+
+    /* Artist modal details */
+    #artistModalName {
+      font-family: var(--serif-min) !important;
+      font-weight: 400 !important;
+      color: var(--ink);
+    }
+    #artistModalBio {
+      font-family: var(--sans-min) !important;
+      font-size: 0.85rem !important;
+      color: var(--ink-body) !important;
+      line-height: 1.8 !important;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 580px) {
+      .gallery-grid { grid-template-columns: 1fr; }
+      .page-hdr { padding: 6rem 0 2.5rem; }
+      .filters { gap: 0.35rem; }
+      .flt { font-size: 0.6rem; padding: 0.32rem 0.75rem; }
+    }
+  </style>
 </head>
 <body>
 
@@ -45,9 +559,9 @@
 <!-- ═══ PAGE HEADER ═══ -->
 <header class="page-hdr">
   <div class="wrap">
-    <span class="eyebrow" style="color:var(--gold-light)">
-      <span class="ar">معرض جدل</span>
-      <span class="en">Jadal Gallery</span>
+    <span class="eyebrow">
+      <span class="ar">معرض جدل — عمّان</span>
+      <span class="en">Jadal Gallery — Amman</span>
     </span>
     <h1>
       <span class="ar">المجموعة الفنية</span>
@@ -197,11 +711,11 @@
 <div class="overlay" id="artistOverlay">
   <div class="modal" style="max-width:480px">
     <div class="modal__top">
-      <div id="artistModalName" style="font-size:1.3rem;font-weight:700;font-family:'Aref Ruqaa',serif"></div>
+      <div id="artistModalName" style="font-size:1.3rem;font-weight:400;font-family:'Instrument Serif','Playfair Display',serif"></div>
       <button class="modal__close" id="closeArtistModal" aria-label="Close">✕</button>
     </div>
-    <div id="artistModalImg" style="height:120px;margin-bottom:1.5rem;border-radius:var(--r)"></div>
-    <p id="artistModalBio" style="font-size:1rem;line-height:1.85;color:var(--umber)"></p>
+    <div id="artistModalImg" style="height:120px;margin:1.25rem 1.4rem;border-radius:8px;overflow:hidden"></div>
+    <p id="artistModalBio" style="font-size:.85rem;line-height:1.8;color:var(--ink-body);padding:0 1.4rem 1.4rem;font-family:'Plus Jakarta Sans',sans-serif"></p>
   </div>
 </div>
 
@@ -256,5 +770,36 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="app.js"></script>
+
+<!-- ── Minimalist-UI: card reveal observer ── -->
+<script>
+  (function () {
+    // Observe new cards as app.js renders them into #galleryGrid
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          // stagger delay based on sibling index
+          const siblings = Array.from(entry.target.parentElement.children);
+          const idx = siblings.indexOf(entry.target);
+          entry.target.style.transitionDelay = `${Math.min(idx % 6, 5) * 70}ms`;
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+    // Watch for new cards added by app.js
+    const grid = document.getElementById('galleryGrid');
+    if (grid) {
+      const mutationObs = new MutationObserver(() => {
+        grid.querySelectorAll('.card:not(.visible):not([data-observed])').forEach(card => {
+          card.setAttribute('data-observed', '1');
+          observer.observe(card);
+        });
+      });
+      mutationObs.observe(grid, { childList: true, subtree: true });
+    }
+  })();
+</script>
 </body>
 </html>
