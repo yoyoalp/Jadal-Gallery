@@ -722,6 +722,43 @@ html[lang="en"] .footer__col h4 { font-family: var(--f-en-body); }
   0%,80%,100% { transform: scale(.75); opacity: .35; }
   40%         { transform: scale(1.25); opacity: 1; }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Arabic Mobile Fixes
+   ════════════════════════════════════════════════════════════════════════════
+
+   Problem 1 — Font: Aref Ruqaa is decorative/calligraphic. Its thin, ornate
+   strokes look great on a desktop monitor but collapse on small phone screens.
+   Cairo is already loaded in this stylesheet and is purpose-built for screens:
+   clean geometry, strong strokes, perfect mobile rendering.
+
+   Problem 2 — letter-spacing: Arabic is a connected script. Any positive
+   letter-spacing physically breaks the joins between letters, turning words
+   into fragments. Use word-spacing for breathing room instead.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Swap to Cairo on mobile ── */
+@media (max-width: 768px) {
+  :root {
+    --f-ar:       'Cairo', 'Amiri', sans-serif;   /* body / UI text  */
+    --f-ar-serif: 'Amiri', 'Cairo', serif;         /* display headings */
+  }
+
+  /* Arabic body text needs more breathing room at small sizes */
+  html[lang="ar"] body                { line-height: 2; }
+  html[lang="ar"] .about__body,
+  html[lang="ar"] .cur-exh p,
+  html[lang="ar"] .card__desc,
+  html[lang="ar"] .hero__subtitle     { line-height: 2; }
+}
+
+/* ── Remove letter-spacing in Arabic mode ── */
+html[lang="ar"] .eyebrow             { letter-spacing: 0; word-spacing: 0.1em; }
+html[lang="ar"] .hero__eyebrow-txt   { letter-spacing: 0; word-spacing: 0.08em; }
+html[lang="ar"] .footer__col h4      { letter-spacing: 0; word-spacing: 0.08em; }
+html[lang="ar"] .btn                 { letter-spacing: 0; }
+html[lang="ar"] .card__badge         { letter-spacing: 0; }
+html[lang="ar"] .f-group label       { letter-spacing: 0; }
 .gallery-empty {
   grid-column: 1 / -1; text-align: center;
   color: var(--umber); padding: 5rem 0; font-size: 1rem;
